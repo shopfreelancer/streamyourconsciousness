@@ -2,7 +2,7 @@ import Vue from 'vue'
 import articlesDataJson from '../json/articles.json';
 import { EventBus } from '../event-bus.js';
    
-export const ArticlesStore = new Vue({
+const ArticlesStore = new Vue({
     data: {
         articles: []
     },
@@ -69,3 +69,11 @@ export const ArticlesStore = new Vue({
         },
     }
 })
+Object.defineProperties(Vue.prototype, {
+  $articlesStore: {
+    get: function () {
+      return ArticlesStore
+    }
+  }
+})
+export {ArticlesStore}

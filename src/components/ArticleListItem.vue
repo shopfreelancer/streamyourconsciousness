@@ -1,72 +1,71 @@
 <template id="article-list-item-template">
-<div>
-    <div v-show="article.dateHeadline" class="col-lg-8"><h2>{{ article.created | formatDateHumanReadable }}</h2></div>
-        <div class="row">
-            <div class="col-lg-8 article-list-item">
-                <div class="card">
-                <div class="card-body">
-                    <div class="article-text-wrap">
-                        <blockquote @click="editArticleForm" v-show="!showEditArticleTextarea" class="card-blockquote">
-                            <div v-show="!showEditArticleTextarea" v-html="article.text"></div>
-                        </blockquote>
+<div class="article-list-item-wrap">
+    <div v-show="article.dateHeadline" class="col-lg-8">
+        <h2>{{ article.created | formatDateHumanReadable }}</h2>
+    </div>
+    <div class="card article-list-item">
+        <div class="card-body">
+            <div class="article-text-wrap">
+                <blockquote @click="editArticleForm" v-show="!showEditArticleTextarea" class="card-blockquote">
+                    <div v-show="!showEditArticleTextarea" v-html="article.text"></div>
+                </blockquote>
 
-                        <vue-editor v-bind:id="editorId" 
-                                    v-show="showEditArticleTextarea" 
-                                    v-model="article.text"
-                                    :editorToolbar="customEditorToolbar"
-                                    >
-                        </vue-editor>
+                <vue-editor v-bind:id="editorId" 
+                            v-show="showEditArticleTextarea" 
+                            v-model="article.text"
+                            :editorToolbar="customEditorToolbar"
+                            >
+                </vue-editor>
 
-                        <button @click="editArticleForm" v-show="showEditArticleTextarea" type="button" class="btn-save-article-text btn btn-primary">Save Article</button> 
-                    </div>
-                    <span class="fa pull-right touchable-elem" v-on:click="showCardFooter = !showCardFooter" v-bind:class="[showCardFooter ? 'fa-arrow-circle-up' : 'fa-arrow-circle-down']"></span>
-                </div>
-                <transition name="card-footer-slide"    
-                            enter-active-class="animated zoomInDown"
-                            leave-active-class="animated zoomOutUp">
-                    <div v-show="showCardFooter" class="card-footer">
-                        <div class="article-tag row">
-                            <div class="col-md-6">
-                                <article-tag v-for="(tag,index) in article.tags" 
-                                              v-bind:showDeleteTagButtons="showDeleteTagButtons" 
-                                              v-bind:key="index"
-                                              v-bind:tag="tag">
-                                </article-tag>
-                                <span v-on:click="toggleTagInputField()" class="touchable-elem fa fa-plus-circle"></span>
-                                <span v-on:click="toggleDeleteTagButtons()" class="touchable-elem fa fa-minus-circle"></span>
-                            </div>
-                            <div class="col-md-6">
-                                <input class="form-control form-control-sm" v-bind:class="[tagInputFieldHasErrors ? 
-'is-invalid' : '']" v-show="showTagInputField" @keypress.enter="addTag()" v-model="newTag" type="text" placeholder="Add new tag">
-                                <div v-if="tagInputFieldHasErrors" class="invalid-feedback">{{tagInputFieldErrorMessage}}</div>
-                            </div>    
-                        </div>
-                        <div class="article-date row">
-                            <div class="col-md-6">    
-                                <span class="btn btn-outline-secondary  btn-sm" @click="showDatepicker = !showDatepicker">Edit date</span>
-                            </div>
-                            <div class="col-md-6">
-                                <span v-show="!showDatepicker" class="article-item-date">{{article.created | formatDateHumanReadable}}</span>
-                                <date-picker v-on:selected="showDatepicker = false"
-                                     v-show="showDatepicker"
-                                     wrapper-class="sf-articlelist-datepicker"
-                                     input-class="form-control form-control-sm"
-                                     v-model="article.created">
-                                </date-picker> 
-                            </div>
-                        </div>
-                        <div class="article-delete row">
-                            <div class="col-sm-12">
-                                <button type="button" @click="deleteArticle(articleIndex)" class="btn btn-outline-secondary btn-sm" aria-label="Delete Article">
-                                    <span>Delete Article</span>
-                                    <i class="fa fa-trash"></i>
-                                </button>
-                            </div>    
-                        </div>
-                    </div>
-                </transition>
+                <button @click="editArticleForm" v-show="showEditArticleTextarea" type="button" class="btn-save-article-text btn btn-primary">Save Article</button> 
             </div>
+            <span class="fa pull-right touchable-elem" v-on:click="showCardFooter = !showCardFooter" v-bind:class="[showCardFooter ? 'fa-arrow-circle-up' : 'fa-arrow-circle-down']"></span>
         </div>
+        <transition name="card-footer-slide"    
+                    enter-active-class="animated zoomInDown"
+                    leave-active-class="animated zoomOutUp">
+            <div v-show="showCardFooter" class="card-footer">
+                <div class="article-tag row">
+                    <div class="col-md-6">
+                        <article-tag v-for="(tag,index) in article.tags" 
+                                      v-bind:showDeleteTagButtons="showDeleteTagButtons" 
+                                      v-bind:key="index"
+                                      v-bind:tag="tag">
+                        </article-tag>
+                        <span v-on:click="toggleTagInputField()" class="touchable-elem fa fa-plus-circle"></span>
+                        <span v-on:click="toggleDeleteTagButtons()" class="touchable-elem fa fa-minus-circle"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <input class="form-control form-control-sm" v-bind:class="[tagInputFieldHasErrors ? 
+'is-invalid' : '']" v-show="showTagInputField" @keypress.enter="addTag()" v-model="newTag" type="text" placeholder="Add new tag">
+                        <div v-if="tagInputFieldHasErrors" class="invalid-feedback">{{tagInputFieldErrorMessage}}</div>
+                    </div>    
+                </div>
+                <div class="article-date row">
+                    <div class="col-md-6">    
+                        <span class="btn btn-outline-secondary  btn-sm" @click="showDatepicker = !showDatepicker">Edit date</span>
+                    </div>
+                    <div class="col-md-6">
+                        <span v-show="!showDatepicker" class="article-item-date">{{article.created | formatDateHumanReadable}}</span>
+                        <date-picker v-on:selected="showDatepicker = false"
+                             v-show="showDatepicker"
+                             wrapper-class="sf-articlelist-datepicker"
+                             input-class="form-control form-control-sm"
+                             v-model="article.created">
+                        </date-picker> 
+                    </div>
+                </div>
+                <div class="article-delete row">
+                    <div class="col-sm-12">
+                        <button type="button" @click="deleteArticle(articleIndex)" class="btn btn-outline-secondary btn-sm" aria-label="Delete Article">
+                            <span>Delete Article</span>
+                            <i class="fa fa-trash"></i>
+                        </button>
+                    </div>    
+                </div>
+            </div>
+
+        </transition>
     </div>
 </div>
 </template> 
@@ -74,13 +73,15 @@
 <script>
 import DatePicker from 'vuejs-datepicker';
 import moment from 'moment';    
-import ArticleUpdate from '@/components/ArticleUpdate'
 import ArticleTag from '@/components/ArticleTag'
 import { VueEditor } from 'vue2-editor'
 
 export default {
   name: 'ArticleListItem',   
   methods: {
+      /**
+      * There are several instances of the vue-editor on the list page, so dynamic ids are necessary
+      */
       getEditorId(){
           return "vue-editor-"+this.articleIndex;
       },
@@ -169,7 +170,7 @@ export default {
 </script>
 
 <style>
-    .article-list-item .card {
+    .article-list-item.card {
         margin-bottom: 1rem;
     }
     
@@ -227,8 +228,4 @@ export default {
             font-size:32px
         }
     }
-
-    
-
-    
 </style>
