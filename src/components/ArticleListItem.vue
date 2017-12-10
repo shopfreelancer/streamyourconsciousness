@@ -106,7 +106,7 @@ export default {
           var self = this;
           if(this.article.tags.includes(this.newTag)){
               this.tagInputFieldHasErrors = true;
-              this.tagInputFieldErrorMessage = "Your tag already exists.";
+              this.tagInputFieldErrorMessage = "Your tag exists already.";
           } else {
             this.article.tags.push(this.newTag);
             this.clearTagInputField();

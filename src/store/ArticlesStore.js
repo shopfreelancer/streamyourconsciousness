@@ -54,6 +54,8 @@ const ArticlesStore = new Vue({
             * https://vuejs.org/v2/guide/reactivity.html#Change-Detection-Caveats
             */
             for(let i = 0; i<articlesDataJson.length;i++){
+                let article = articlesDataJson[i];
+                article.id = this.getNewArticleId();
                 this.$set(this.articles, i, articlesDataJson[i]);
             }
         },
@@ -67,6 +69,29 @@ const ArticlesStore = new Vue({
             localStorage.clear();
             this.initData();
         },
+        /**
+        * Generates primary key for articleIds. Get highest Id
+        */
+        getNewArticleId(){
+            if(this.articles.length === 0) 
+                return 1;
+            if(this.articles.length > 0){
+                let articleIds = [];
+                this.articles.forEach(function(article){
+                    articleIds.push(article.id);
+                })
+                let highestId = Math.max.apply(Math, articleIds);
+                return highestId +1;
+            }
+            return false;
+        },
+        /**
+        * Create and add an new article to articles
+        */
+        addNewArticle(article){
+            article.id = this.getNewArticleId();
+            this.articles.push(article);
+        }
     }
 })
 Object.defineProperties(Vue.prototype, {

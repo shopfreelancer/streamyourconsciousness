@@ -9,7 +9,6 @@
 <script>
 import { EventBus } from '../event-bus.js';
 import moment from 'moment'
-    
 
 export default {
     name: 'ArticleCreate',
@@ -23,9 +22,10 @@ export default {
                 'created' : moment().format('Y-MM-DD'),
                 'tags' : [] 
             }
+            
+            this.$articlesStore.addNewArticle(newArticleObj);
             // clear input field
             this.newArticle = "";
-            this.$articlesStore.articles.unshift(newArticleObj);
         },
       },
   data () {
