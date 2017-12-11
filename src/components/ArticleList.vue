@@ -23,47 +23,6 @@ export default {
         deleteArticle(index) {
             this.articles.splice(index, 1);
         },
-       /**
-        * Group articles by created date. Generate a headline for the first article with certain date
-        */
-        setDateHeadlinesFlag(){
-         
-            var articlesIndexes = [],
-            lastIndex = this.articles.length -1;
-
-            this.articles.forEach(function(article,index){
-                articlesIndexes.push(index);
-            });
-            
-            this.searchNextMatchingDate(articlesIndexes,lastIndex);
-        },
-        /**
-        * Search next date, which matches the first date in array
-        */
-        searchNextMatchingDate(articlesIndexes,lastIndex){
-            var self = this,
-            newArticlesIndexes = [],
-            searchForMatchingDateOfIndex = articlesIndexes[0];
-
-            for(let i = 0 ; i < articlesIndexes.length; i++){
-                let currentIndex = articlesIndexes[i];
-                
-                self.articles[currentIndex].dateHeadline = 
-                (articlesIndexes[i] === searchForMatchingDateOfIndex) ? true : false;
-                
-                let date1 = self.articles[searchForMatchingDateOfIndex].created,
-                    date2 = self.articles[currentIndex].created;
-                
-                if(!moment(date1).isSame(date2, 'day')){
-                    newArticlesIndexes = articlesIndexes.slice(i,articlesIndexes.length);
-                    break;
-                }
-            }
-
-            if(newArticlesIndexes.length > 0){
-                self.searchNextMatchingDate(newArticlesIndexes,lastIndex);
-            }
-        },
         /**
         * Sort articles by date. This is used only for rendering.
         */
@@ -71,63 +30,107 @@ export default {
             this.articles.sort(function(a, b) {
                 return moment(a.created).isAfter(b.created, 'day') ? -1 : moment(a.created).isBefore(b.created, 'day') ? 1 : 0;
             });
+        },        
+       /**
+        * Sort articles by created date. All articles of a certain date should be after each other.
+        */
+        searchDateRanges(){
+            var articlesIndexes = [],
+            lastIndex = this.articles.length -1;
+            
+            // reset array before every iteration
+            this.dateChangedArrayIndex = [];
+
+            this.articles.forEach(function(article,index){
+                articlesIndexes.push(index);
+            });
+
+            this.searchNextMatchingDate(articlesIndexes,lastIndex);
         },
+        /**
+        * Search next date, which doesn´t match the first date in array
+        * 
+        */
+        searchNextMatchingDate(articlesIndexes,lastIndex){
+            var self = this,
+            newArticlesIndexes = [],
+            searchForMatchingDateOfIndex = articlesIndexes[0];
+            
+            for(let i = 0 ; i < articlesIndexes.length; i++){
+                let currentIndex = articlesIndexes[i];
+             
+                let date1 = self.articles[searchForMatchingDateOfIndex].created,
+                    date2 = self.articles[currentIndex].created;
+                
+                if(!moment(date1).isSame(date2, 'day')){
+                    this.dateChangedArrayIndex.push(searchForMatchingDateOfIndex);
+                    newArticlesIndexes = articlesIndexes.slice(i,articlesIndexes.length);
+                    break;
+                }
+            }
+
+            if(newArticlesIndexes.length > 0){
+                self.searchNextMatchingDate(newArticlesIndexes,lastIndex);
+            } else {
+                // if no matching dates found there is either only one date range or we´re in the last date range
+                this.dateChangedArrayIndex.push(articlesIndexes[0]);
+            }
+        },
+        /**
+        * Boolean flag is used to display the date on the first article of range articles with same date
+        */
+        setDateHeadlineFlags(){
+            var self = this;
+          
+            if(self.dateChangedArrayIndex.length < 0)
+                return;
+            
+            self.articles.forEach(function(article,index){
+                if(self.dateChangedArrayIndex.includes(index)){
+                    self.$set(article, 'dateHeadline', true);
+                } else {
+                    self.$set(article, 'dateHeadline', false); 
+                }
+            });
+            
+        },
+        /**
+        * Articles of the same date get sorted by ID.
+        * As this needs to be done for index ranges in articles Array.sort() will not help here
+        * What we want is the following sort order
+        * [{date:'date1',id:10},{date:'date1',id:9},{date:'date1',id:8},{date:'date2',id:13},{date:'date2',id:11}]    
+        */
         sortArticlesByIdandDateRange(){
             var self = this,
             dateHeadlineIndexes = [];
+
             
-            this.articles.forEach(function(article,index){
-                if(article.dateHeadline === true) dateHeadlineIndexes.push(index);
-            });
+            if(this.dateChangedArrayIndex.length<1){
+                return;
+            }
             
-            Array.prototype.move = function(from, to) {
-                this.splice(to, 0, this.splice(from, 1)[0]);
-            };
-          
-                let i = 0;
-                let articlesRangeIds = [];
-                let articlesRange = this.articles.slice(dateHeadlineIndexes[i],dateHeadlineIndexes[i+1]);
-                var sortedArticlesRange = this.sortArrayRangeByIdDesc(articlesRange);
-                console.log(sortedArticlesRange);
-                // dann stimmt aber auch die dateHeadline Flag nicht mehr und damit nichts
-                // andere Option: das Datum erweitern um Uhrzeit
-                // @todo. das muesste anders laufen. Erst group by date, dann sortieren nach id, dann die flags setzen.
-                sortedArticlesRange.forEach(function(el){
-                      self.articles.splice(el.newindex, 0, self.articles.splice(el.oldindex, 1)[0]);
-                      if(el.newindex === 0){
-                     
-                      }
-                      
+            var sortedArticles = [];
+            
+            for(let j = 0; j < this.dateChangedArrayIndex.length; j++){
+                let start = this.dateChangedArrayIndex[j],
+                    end = (j === this.dateChangedArrayIndex.length -1) ? self.articles.length  : this.dateChangedArrayIndex[j+1];
                 
-                    
-                    
-                    console.log("from "+el.oldindex+" to "+el.newindex)
-                    //this.articles.move(el.oldindex,el.newindex);
+                let articlesRange = this.articles.slice(start,end);
+                let sortedArticlesRange = this.sortArticlesRangeByIdDesc(articlesRange);
+                
+                sortedArticlesRange.forEach(function(article){
+                    sortedArticles.push(article);
                 })
-                console.log(this.articles);
+            }
             
-               
-                
-            
-                
-        
-    
-            // lauf das array durch. speichere neue sort order indexe in array. 
-         
+            sortedArticles.forEach(function(article,i){
+                self.$set(self.$articlesStore.articles, i, article);
+            })
         },
-        moveArticle(from,to){
-            this.articles.splice(to, 0, this.articles.splice(from, 1)[0]);
-        },
-        sortArrayRangeByIdDesc(articlesRange){
-            
-            articlesRange.forEach(function(el,index) {
-                el.oldindex = index;
-            });
+        sortArticlesRangeByIdDesc(articlesRange){
+
             articlesRange.sort(function(a, b) {
                 return a.id > b.id ? -1 : a.id < b.id ? 1 : 0;
-            });
-            articlesRange.forEach(function(el,index) {
-                el.newindex = index;
             });
             
             return articlesRange;
@@ -143,17 +146,17 @@ export default {
       computed: {
           sortedList: function () {
               this.sortArticlesByDateDesc();
-
+              this.searchDateRanges();
               this.sortArticlesByIdandDateRange();
-              
-              this.setDateHeadlinesFlag();
+              this.setDateHeadlineFlags();
+    
               return this.articles;
           }
       },
       data () {
         return {
-          newArticle : '',
           articles : this.$articlesStore.articles,
+          dateChangedArrayIndex : []
         }
       },
       components: {
