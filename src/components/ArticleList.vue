@@ -102,38 +102,33 @@ export default {
         */
         sortArticlesByIdandDateRange(){
             var self = this,
-            dateHeadlineIndexes = [];
-
+                dateHeadlineIndexes = [],
+                sortedArticles = [];
             
-            if(this.dateChangedArrayIndex.length<1){
+            if(this.dateChangedArrayIndex.length < 1)
                 return;
-            }
-            
-            var sortedArticles = [];
             
             for(let j = 0; j < this.dateChangedArrayIndex.length; j++){
                 let start = this.dateChangedArrayIndex[j],
                     end = (j === this.dateChangedArrayIndex.length -1) ? self.articles.length  : this.dateChangedArrayIndex[j+1];
                 
+                // this is the array with all article objects with the same date
                 let articlesRange = this.articles.slice(start,end);
-                let sortedArticlesRange = this.sortArticlesRangeByIdDesc(articlesRange);
+                let sortedArticlesRange = articlesRange.sort(function(a, b) {
+                    return a.id > b.id ? -1 : a.id < b.id ? 1 : 0;
+                });
                 
+                // articles in every sortedArticlesRange are sorted so let´s push them back in the right order
                 sortedArticlesRange.forEach(function(article){
                     sortedArticles.push(article);
                 })
             }
             
+            // to preserve reactivity of articles and avoid caveats $set needs to be called
+            // https://vuejs.org/v2/guide/reactivity.html#Change-Detection-Caveats
             sortedArticles.forEach(function(article,i){
                 self.$set(self.$articlesStore.articles, i, article);
             })
-        },
-        sortArticlesRangeByIdDesc(articlesRange){
-
-            articlesRange.sort(function(a, b) {
-                return a.id > b.id ? -1 : a.id < b.id ? 1 : 0;
-            });
-            
-            return articlesRange;
         }
       },
       created() {
