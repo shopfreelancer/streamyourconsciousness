@@ -35,18 +35,40 @@ import { EventBus } from './event-bus.js';
 import ArticleList from '@/components/ArticleList'
 import ArticleCreate from '@/components/ArticleCreate'
 // import global Store object for Articles
-import ArticlesStore  from './store/ArticlesStore.js'     
+//import ArticlesStore  from './store/ArticlesStore.js'
+import store from './store/index.js'
+import articlesDataJson from './json/articles.json';
 
 export default {
   name: 'app',
+  store,
   data () {
     return {
     }
+  },
+  created(){
+      this.initDemoData();
   },
   methods : {
       resetApp(){
           EventBus.$emit('resetData');
       },
+    initDemoData(){
+
+        if(!typeof articlesDataJson || articlesDataJson.length < 1){
+            return false;
+        }
+        
+        if(this.$store.getters.getArticlesCount > 0){
+            return;
+        }
+        
+        for(let i = 0; i < articlesDataJson.length;i++){
+            let article = articlesDataJson[i];
+        
+            this.$store.dispatch('addArticleAction', article) 
+        }
+    },           
   },
   components : {
       ArticleList,

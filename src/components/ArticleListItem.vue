@@ -25,22 +25,9 @@
                     enter-active-class="animated zoomInDown"
                     leave-active-class="animated zoomOutUp">
             <div v-show="showCardFooter" class="card-footer">
-                <div class="article-tag row">
-                    <div class="col-md-6">
-                        <article-tag v-for="(tag,index) in article.tags" 
-                                      v-bind:showDeleteTagButtons="showDeleteTagButtons" 
-                                      v-bind:key="index"
-                                      v-bind:tag="tag">
-                        </article-tag>
-                        <span v-on:click="toggleTagInputField()" class="touchable-elem fa fa-plus-circle"></span>
-                        <span v-on:click="toggleDeleteTagButtons()" class="touchable-elem fa fa-minus-circle"></span>
-                    </div>
-                    <div class="col-md-6">
-                        <input class="form-control form-control-sm" v-bind:class="[tagInputFieldHasErrors ? 
-'is-invalid' : '']" v-show="showTagInputField" @keypress.enter="addTag()" v-model="newTag" type="text" placeholder="Add new tag">
-                        <div v-if="tagInputFieldHasErrors" class="invalid-feedback">{{tagInputFieldErrorMessage}}</div>
-                    </div>    
-                </div>
+                
+                <article-tags v-bind:article="article"/>
+                
                 <div class="article-date row">
                     <div class="col-md-6">    
                         <span class="btn btn-outline-secondary  btn-sm" @click="showDatepicker = !showDatepicker">Edit date</span>
@@ -57,7 +44,7 @@
                 </div>
                 <div class="article-delete row">
                     <div class="col-sm-12">
-                        <button type="button" @click="deleteArticle(articleIndex)" class="btn btn-outline-secondary btn-sm" aria-label="Delete Article">
+                        <button type="button" @click="deleteArticle(article)" class="btn btn-outline-secondary btn-sm" aria-label="Delete Article">
                             <span>Delete Article</span>
                             <i class="fa fa-trash"></i>
                         </button>
@@ -73,7 +60,7 @@
 <script>
 import DatePicker from 'vuejs-datepicker';
 import moment from 'moment';    
-import ArticleTag from '@/components/ArticleTag'
+import ArticleTags from '@/components/ArticleTags'
 import { VueEditor } from 'vue2-editor'
 
 export default {
@@ -88,52 +75,12 @@ export default {
       editArticleForm(){
         this.showEditArticleTextarea = !this.showEditArticleTextarea
       },
-      toggleTagInputField(){
-          if(this.showTagInputField === true) {
-              this.showTagInputField = false;
-              this.clearTagInputField();
-          } else {
-              this.showTagInputField = true;
-          }
-      },
-      toggleDeleteTagButtons(){
-          this.showDeleteTagButtons = !this.showDeleteTagButtons;
-      },
-      deleteArticle(articleIndex){
-          this.$parent.$emit('deleteArticle',articleIndex)
-      },
-      addTag(event){
-          var self = this;
-          if(this.article.tags.includes(this.newTag)){
-              this.tagInputFieldHasErrors = true;
-              this.tagInputFieldErrorMessage = "Your tag exists already.";
-          } else {
-            this.article.tags.push(this.newTag);
-            this.clearTagInputField();
-          }
-      },
-      deleteTag(tag){
-          let tagIndex = this.article.tags.indexOf(tag);
-          this.article.tags.splice(tagIndex,1);
-      },
-      clearTagInputField(){
-            this.newTag = "";
-            this.tagInputFieldHasErrors = false;  
-            this.tagInputFieldErrorMessage = "";
-      },
-      toggleDeleteTagButtons(){
-            if(this.showDeleteTagButtons === true) {
-              this.showDeleteTagButtons = false;
-          } else {
-              this.showDeleteTagButtons = true;
-          }
-      },
+      deleteArticle(article){
+          this.$store.commit('deleteArticle',article);
+      },  
   },
   created() {
       var self = this;
-        this.$on("deleteTag", function (tag) {
-            self.deleteTag(tag);
-      });
       this.editorId = this.getEditorId();
   },
   filters: {
@@ -143,18 +90,13 @@ export default {
   },
  props : ['article','articleIndex'],   
     components: {
-         ArticleTag,
          DatePicker,
-         VueEditor
+         VueEditor,
+         ArticleTags
   },
   data () {
     return {
-      newTag : "",
       showCardFooter : false,
-      showTagInputField : false,
-      tagInputFieldHasErrors : false,
-      tagInputFieldErrorMessage : '',
-      showDeleteTagButtons : false,
       showDatepicker : false,
       showEditArticleTextarea : false,
       editorId : "",
@@ -190,9 +132,6 @@ export default {
         border-bottom:1px solid #000;
     }
     
-    .card-footer .article-tag {
-        border-top:1px solid #000;
-    }
     
     .card-blockquote {
         white-space: pre-line;

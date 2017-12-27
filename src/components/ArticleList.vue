@@ -1,7 +1,7 @@
 <template id="article-list-template">
     <div class="container">
         <article-list-item
-              v-for="(article, index) in sortedList"
+              v-for="(article, index) in articles"
               v-bind:article="article"
               v-bind:articleIndex="index"
               v-bind:key="article.id">
@@ -133,6 +133,10 @@ export default {
       },
       created() {
           var self = this;
+          
+          
+          
+          //this.$store.commit('addTodo', { text })
 
           self.$on("deleteArticle", function (index) {
               self.deleteArticle(index);
@@ -146,11 +150,13 @@ export default {
               this.setDateHeadlineFlags();
     
               return this.articles;
+          },
+          articles(){
+              return this.$store.state.articles;
           }
       },
       data () {
         return {
-          articles : this.$articlesStore.articles,
           dateChangedArrayIndex : []
         }
       },
