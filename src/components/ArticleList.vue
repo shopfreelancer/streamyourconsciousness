@@ -1,28 +1,22 @@
 <template id="article-list-template">
     <div class="container">
-        <article-list-item
+        <article-item
               v-for="(article, index) in articles"
               v-bind:article="article"
               v-bind:articleIndex="index"
               v-bind:key="article.id">
-        </article-list-item>
+        </article-item>
    </div>
 </template> 
 
 <script>
 import { EventBus } from '../event-bus.js';
-import ArticleListItem from '@/components/ArticleListItem'
+import Article from '@/components/Article'
 import moment from 'moment'
 
 export default {
     name: 'ArticleList',   
     methods: {
-        /**
-        * Delete one article from articles
-        */
-        deleteArticle(index) {
-            this.articles.splice(index, 1);
-        },
         /**
         * Sort articles by date. This is used only for rendering.
         */
@@ -131,17 +125,6 @@ export default {
             })
         }
       },
-      created() {
-          var self = this;
-          
-          
-          
-          //this.$store.commit('addTodo', { text })
-
-          self.$on("deleteArticle", function (index) {
-              self.deleteArticle(index);
-          });
-      },
       computed: {
           sortedList: function () {
               this.sortArticlesByDateDesc();
@@ -161,7 +144,7 @@ export default {
         }
       },
       components: {
-          ArticleListItem,
+          ArticleItem: Article,
       }
 }
 </script>

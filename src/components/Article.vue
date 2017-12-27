@@ -1,4 +1,4 @@
-<template id="article-list-item-template">
+<template>
 <div class="article-list-item-wrap">
     <div v-show="article.dateHeadline" class="col-lg-8">
         <h2>{{ article.created | formatDateHumanReadable }}</h2>
@@ -44,7 +44,7 @@
                 </div>
                 <div class="article-delete row">
                     <div class="col-sm-12">
-                        <button type="button" @click="deleteArticle(article)" class="btn btn-outline-secondary btn-sm" aria-label="Delete Article">
+                        <button type="button" @click="deleteArticle()" class="btn btn-outline-secondary btn-sm" aria-label="Delete Article">
                             <span>Delete Article</span>
                             <i class="fa fa-trash"></i>
                         </button>
@@ -64,7 +64,7 @@ import ArticleTags from '@/components/ArticleTags'
 import { VueEditor } from 'vue2-editor'
 
 export default {
-  name: 'ArticleListItem',   
+  name: 'Article',
   methods: {
       /**
       * There are several instances of the vue-editor on the list page, so dynamic ids are necessary
@@ -75,8 +75,8 @@ export default {
       editArticleForm(){
         this.showEditArticleTextarea = !this.showEditArticleTextarea
       },
-      deleteArticle(article){
-          this.$store.commit('deleteArticle',article);
+      deleteArticle(){
+          this.$store.commit('deleteArticle',this.article);
       },  
   },
   created() {
@@ -131,7 +131,6 @@ export default {
         padding-bottom:10px;
         border-bottom:1px solid #000;
     }
-    
     
     .card-blockquote {
         white-space: pre-line;

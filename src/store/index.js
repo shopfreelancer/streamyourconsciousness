@@ -19,7 +19,7 @@ export default new Vuex.Store({
   },
   getters : {
     /**
-    * Generates primary key for articleIds. Get highest id
+    * Generates primary key index for articleIds. Get highest id
     */
     getNewArticleId: (state, getters) => {
         if(getters.getArticlesCount === 0) 

@@ -22,7 +22,7 @@ export const mutations = {
   deleteArticle (state, article) {
      state.articles.splice(state.articles.indexOf(article), 1)
   },
-    
+
  addTag (state, { article, tag }) {
     article.tags.push(tag);
   },
